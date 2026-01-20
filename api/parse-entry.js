@@ -18,39 +18,19 @@ export default async function handler(req, res) {
   const today = new Date().toISOString().split('T')[0];
   const now = new Date().toISOString();
 
-  const systemPrompt = `You parse natural language baby tracking entries into structured JSON.
+  const systemPrompt = `You parse baby tracking entries into JSON. TODAY'S DATE IS ${today}.
 
-Return a JSON object with an "entries" array. Each entry is either a feed or sleep:
+Return {"entries": [...]} where each entry is:
 
-Feed entry:
-{
-  "type": "feed",
-  "timestamp": "ISO 8601 datetime",
-  "amount_oz": number or null,
-  "duration_minutes": number or null
-}
+Feed: {"type": "feed", "timestamp": "${today}T{HH}:{MM}:00", "amount_oz": number|null, "duration_minutes": number|null}
+Sleep: {"type": "sleep", "start_time": "${today}T{HH}:{MM}:00", "end_time": "..." or null, "location": string|null}
 
-Sleep entry:
-{
-  "type": "sleep",
-  "start_time": "ISO 8601 datetime",
-  "end_time": "ISO 8601 datetime or null",
-  "location": string or null
-}
-
-Parsing rules:
-- "bf" or "nursing" or "nurse" or "breastfeed" = breastfeeding (use duration_minutes, amount_oz should be null)
-- "bottle" or just "oz" without nursing mentioned = bottle (use amount_oz, duration_minutes should be null)
-- For times like "3pm", use today's date ${today} and format as LOCAL time (no Z suffix): "${today}T15:00:00"
-- "30 min ago" means subtract from current time: ${now}
-- IMPORTANT: Never add "Z" suffix to timestamps - use local time format like "2025-01-20T15:00:00"
-- One input can contain multiple entries (e.g., "bf 10 min and 4oz bottle")
-- If both nursing and bottle in same session, create two separate feed entries with same timestamp
-- "nap from 1-3pm" = sleep entry with start and end
-- "nap started at 2pm" = sleep entry with start only (end_time: null)
-- Location can be: "crib", "bassinet", "stroller", "car seat", "arms", or other string
-
-Return ONLY valid JSON, no explanation or markdown.`;
+Rules:
+- "bf"/"nursing"/"nurse" = breastfeeding → use duration_minutes only
+- "bottle"/"oz" = bottle → use amount_oz only
+- "3pm" → "${today}T15:00:00" (use 24hr format, NO "Z" suffix)
+- Multiple items = multiple entries with same timestamp
+- Return ONLY valid JSON.`;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
