@@ -41,8 +41,9 @@ Sleep entry:
 Parsing rules:
 - "bf" or "nursing" or "nurse" or "breastfeed" = breastfeeding (use duration_minutes, amount_oz should be null)
 - "bottle" or just "oz" without nursing mentioned = bottle (use amount_oz, duration_minutes should be null)
-- For relative times like "3pm", use today's date: ${today}
+- For times like "3pm", use today's date ${today} and format as LOCAL time (no Z suffix): "${today}T15:00:00"
 - "30 min ago" means subtract from current time: ${now}
+- IMPORTANT: Never add "Z" suffix to timestamps - use local time format like "2025-01-20T15:00:00"
 - One input can contain multiple entries (e.g., "bf 10 min and 4oz bottle")
 - If both nursing and bottle in same session, create two separate feed entries with same timestamp
 - "nap from 1-3pm" = sleep entry with start and end
