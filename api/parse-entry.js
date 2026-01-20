@@ -75,7 +75,10 @@ Return ONLY valid JSON, no explanation or markdown.`;
     if (!response.ok) {
       const errorData = await response.json();
       console.error('Anthropic API error:', errorData);
-      return res.status(500).json({ error: 'Failed to parse entry' });
+      return res.status(500).json({
+        error: 'API error',
+        details: errorData.error?.message || JSON.stringify(errorData)
+      });
     }
 
     const data = await response.json();
@@ -87,12 +90,18 @@ Return ONLY valid JSON, no explanation or markdown.`;
       parsed = JSON.parse(content);
     } catch (parseError) {
       console.error('Failed to parse Claude response:', content);
-      return res.status(500).json({ error: 'Failed to parse response' });
+      return res.status(500).json({
+        error: 'Parse error',
+        details: content.substring(0, 200)
+      });
     }
 
     return res.status(200).json(parsed);
   } catch (error) {
     console.error('Error calling Anthropic API:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({
+      error: 'Internal error',
+      details: error.message
+    });
   }
 }

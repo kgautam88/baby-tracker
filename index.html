@@ -1075,11 +1075,11 @@
             body: JSON.stringify({ text: text.trim() })
           });
 
-          if (!response.ok) {
-            throw new Error('Failed to parse entry');
-          }
-
           const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.details || data.error || 'Failed to parse entry');
+          }
 
           if (data.entries && data.entries.length > 0) {
             onEntriesAdded(data.entries);
