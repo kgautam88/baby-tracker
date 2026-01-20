@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Baby Tracker</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #5B9BD5;
+      --primary-dark: #4A89C4;
+      --secondary: #7BC47F;
+      --secondary-dark: #6AB36E;
+      --background: #F8FAFC;
+      --card: #FFFFFF;
+      --text: #334155;
+      --text-light: #64748B;
+      --danger: #EF4444;
+      --danger-dark: #DC2626;
+      --border: #E2E8F0;
+      --shadow: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-lg: 0 4px 6px rgba(0,0,0,0.1);
+      --highlight: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--background);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 16px;
+      padding-bottom: 32px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    .header .date {
+      color: var(--text-light);
+      font-size: 14px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-light);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .quick-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px 24px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      min-height: 56px;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: var(--secondary);
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: var(--secondary-dark);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: var(--danger-dark);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .btn-small {
+      padding: 8px 16px;
+      font-size: 14px;
+      min-height: 40px;
+    }
+
+    /* Total Milk Highlight Card */
+    .total-milk-card {
+      background: var(--highlight);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-lg);
+      text-align: center;
+      color: white;
+    }
+
+    .total-milk-value {
+      font-size: 48px;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .total-milk-label {
+      font-size: 16px;
+      opacity: 0.9;
+      font-weight: 500;
+    }
+
+    .total-milk-breakdown {
+      margin-top: 12px;
+      font-size: 13px;
+      opacity: 0.85;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .summary-item {
+      text-align: center;
+      padding: 12px;
+      background: var(--background);
+      border-radius: 8px;
+    }
+
+    .summary-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .summary-label {
+      font-size: 12px;
+      color: var(--text-light);
+      margin-top: 4px;
+    }
+
+    .entry-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .entry {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: var(--background);
+      border-radius: 8px;
+    }
+
+    .entry-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .entry-icon.feed {
+      background: #FEF3C7;
+    }
+
+    .entry-icon.sleep {
+      background: #E0E7FF;
+    }
+
+    .entry-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .entry-title {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .entry-details {
+      font-size: 12px;
+      color: var(--text-light);
+      margin-top: 2px;
+    }
+
+    .entry-time {
+      font-size: 12px;
+      color: var(--text-light);
+      white-space: nowrap;
+    }
+
+    .entry-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 8px;
+      background: var(--card);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .icon-btn:hover {
+      background: var(--border);
+    }
+
+    .icon-btn.delete:hover {
+      background: #FEE2E2;
+      color: var(--danger);
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+
+    .modal {
+      background: var(--card);
+      border-radius: 16px 16px 0 0;
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(100%);
+      }
+      to {
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 50%;
+      background: var(--background);
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-body {
+      padding: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .form-select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 16px;
+      background: white;
+      cursor: pointer;
+    }
+
+    .form-select:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .form-row > .form-group {
+      flex: 1;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-light);
+      margin-bottom: 12px;
+      margin-top: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .section-title:first-child {
+      border-top: none;
+      padding-top: 0;
+      margin-top: 0;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      padding: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .modal-actions .btn {
+      flex: 1;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 32px;
+      color: var(--text-light);
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+      opacity: 0.5;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .row > * {
+      flex: 1;
+    }
+
+    .helper-text {
+      font-size: 12px;
+      color: var(--text-light);
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useCallback, useMemo } = React;
+
+    // Constants
+    const NURSING_OZ_PER_MINUTE = 0.2;
+
+    // Utility functions
+    const generateId = () => crypto.randomUUID();
+
+    const formatTime = (dateStr) => {
+      const date = new Date(dateStr);
+      return date.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+    };
+
+    const formatDuration = (minutes) => {
+      const hrs = Math.floor(minutes / 60);
+      const mins = Math.round(minutes % 60);
+      if (hrs === 0) return `${mins}m`;
+      if (mins === 0) return `${hrs}h`;
+      return `${hrs}h ${mins}m`;
+    };
+
+    const formatDurationLive = (startTime) => {
+      const start = new Date(startTime);
+      const now = new Date();
+      const diffMs = now - start;
+      const minutes = Math.floor(diffMs / 60000);
+      return formatDuration(minutes);
+    };
+
+    const isToday = (dateStr) => {
+      const date = new Date(dateStr);
+      const today = new Date();
+      return date.toDateString() === today.toDateString();
+    };
+
+    // Get date string (YYYY-MM-DD) for input
+    const getLocalDateString = (date = new Date()) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    // Get time string (HH:MM) for input
+    const getLocalTimeString = (date = new Date()) => {
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return `${hours}:${minutes}`;
+    };
+
+    // Get time 30 minutes ago
+    const getTime30MinAgo = () => {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - 30);
+      return now;
+    };
+
+    // Combine date and time strings into ISO string
+    const combineDateTime = (dateStr, timeStr) => {
+      return new Date(`${dateStr}T${timeStr}`).toISOString();
+    };
+
+    // Data persistence
+    const STORAGE_KEY = 'babyTrackerData';
+
+    const loadData = () => {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          return JSON.parse(stored);
+        }
+      } catch (e) {
+        console.error('Failed to load data:', e);
+      }
+      return { feeds: [], sleeps: [] };
+    };
+
+    const saveData = (data) => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch (e) {
+        console.error('Failed to save data:', e);
+      }
+    };
+
+    // Components
+    const Header = () => {
+      const today = new Date().toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric'
+      });
+
+      return (
+        <div className="header">
+          <h1>Baby Coley's Daily Stats!</h1>
+          <div className="date">{today}</div>
+        </div>
+      );
+    };
+
+    const QuickActions = ({ onLogNap, onLogFeed }) => {
+      return (
+        <div className="card">
+          <div className="card-title">Quick Actions</div>
+          <div className="quick-actions">
+            <button className="btn btn-primary" onClick={onLogNap}>
+              😴 Log Nap
+            </button>
+            <button className="btn btn-outline" onClick={onLogFeed}>
+              🍼 Log Feed
+            </button>
+          </div>
+        </div>
+      );
+    };
+
+    const TotalMilkCard = ({ feeds }) => {
+      const todayFeeds = feeds.filter(f => isToday(f.timestamp));
+
+      // Calculate bottle oz (formula + pumped breast milk)
+      const bottleOz = todayFeeds.reduce((sum, f) => sum + (f.amount_oz || 0), 0);
+
+      // Calculate nursing oz equivalent (1 min = 0.2 oz)
+      const nursingMins = todayFeeds.reduce((sum, f) => sum + (f.duration_minutes || 0), 0);
+      const nursingOz = nursingMins * NURSING_OZ_PER_MINUTE;
+
+      // Total milk
+      const totalOz = bottleOz + nursingOz;
+
+      return (
+        <div className="total-milk-card">
+          <div className="total-milk-value">{totalOz.toFixed(1)} oz</div>
+          <div className="total-milk-label">Total Milk Today</div>
+          <div className="total-milk-breakdown">
+            {bottleOz.toFixed(1)} oz bottle + {nursingOz.toFixed(1)} oz nursing ({nursingMins} min)
+          </div>
+        </div>
+      );
+    };
+
+    const DailySummary = ({ feeds, sleeps }) => {
+      const todayFeeds = feeds.filter(f => isToday(f.timestamp));
+      const todaySleeps = sleeps.filter(s => isToday(s.start_time));
+
+      const bottleOz = todayFeeds.reduce((sum, f) => sum + (f.amount_oz || 0), 0);
+      const nursingMins = todayFeeds.reduce((sum, f) => sum + (f.duration_minutes || 0), 0);
+      const nursingOz = nursingMins * NURSING_OZ_PER_MINUTE;
+
+      const sleepMins = todaySleeps.reduce((sum, s) => {
+        if (!s.end_time) {
+          const now = new Date();
+          const start = new Date(s.start_time);
+          return sum + (now - start) / 60000;
+        }
+        const start = new Date(s.start_time);
+        const end = new Date(s.end_time);
+        return sum + (end - start) / 60000;
+      }, 0);
+
+      return (
+        <div className="card">
+          <div className="card-title">Today's Breakdown</div>
+          <div className="summary-grid">
+            <div className="summary-item">
+              <div className="summary-value">{bottleOz.toFixed(1)}</div>
+              <div className="summary-label">oz bottle</div>
+            </div>
+            <div className="summary-item">
+              <div className="summary-value">{nursingOz.toFixed(1)}</div>
+              <div className="summary-label">oz nursing ({nursingMins}m)</div>
+            </div>
+            <div className="summary-item">
+              <div className="summary-value">{formatDuration(sleepMins)}</div>
+              <div className="summary-label">total sleep</div>
+            </div>
+            <div className="summary-item">
+              <div className="summary-value">{todayFeeds.length} / {todaySleeps.length}</div>
+              <div className="summary-label">feeds / naps</div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const FeedEntry = ({ feed, onEdit, onDelete }) => {
+      const parts = [];
+      if (feed.amount_oz) parts.push(`${feed.amount_oz} oz`);
+      if (feed.duration_minutes) parts.push(`${feed.duration_minutes} min nursing`);
+      const details = parts.join(' + ');
+
+      // Determine what type of feed this is for display
+      let title = 'Feed';
+      if (feed.amount_oz && feed.duration_minutes) {
+        title = 'Bottle + Nursing';
+      } else if (feed.duration_minutes) {
+        title = 'Nursing';
+      } else if (feed.amount_oz) {
+        title = 'Bottle';
+      }
+
+      return (
+        <div className="entry">
+          <div className="entry-icon feed">🍼</div>
+          <div className="entry-content">
+            <div className="entry-title">{title}</div>
+            <div className="entry-details">{details}</div>
+          </div>
+          <div className="entry-time">{formatTime(feed.timestamp)}</div>
+          <div className="entry-actions">
+            <button className="icon-btn" onClick={() => onEdit(feed)}>✏️</button>
+            <button className="icon-btn delete" onClick={() => onDelete(feed.id)}>🗑️</button>
+          </div>
+        </div>
+      );
+    };
+
+    const SleepEntry = ({ sleep, onEdit, onDelete }) => {
+      const isOngoing = sleep.end_time === null;
+      const duration = isOngoing
+        ? formatDurationLive(sleep.start_time)
+        : (() => {
+            const start = new Date(sleep.start_time);
+            const end = new Date(sleep.end_time);
+            return formatDuration((end - start) / 60000);
+          })();
+
+      return (
+        <div className="entry">
+          <div className="entry-icon sleep">🌙</div>
+          <div className="entry-content">
+            <div className="entry-title">
+              {isOngoing ? 'Sleeping...' : 'Nap'}
+              {sleep.location && ` (${sleep.location})`}
+            </div>
+            <div className="entry-details">{duration}</div>
+          </div>
+          <div className="entry-time">{formatTime(sleep.start_time)}</div>
+          <div className="entry-actions">
+            <button className="icon-btn" onClick={() => onEdit(sleep)}>✏️</button>
+            <button className="icon-btn delete" onClick={() => onDelete(sleep.id)}>🗑️</button>
+          </div>
+        </div>
+      );
+    };
+
+    const EntryList = ({ feeds, sleeps, onEditFeed, onDeleteFeed, onEditSleep, onDeleteSleep }) => {
+      const todayFeeds = feeds.filter(f => isToday(f.timestamp));
+      const todaySleeps = sleeps.filter(s => isToday(s.start_time));
+
+      const allEntries = [
+        ...todayFeeds.map(f => ({ ...f, entryType: 'feed', sortTime: f.timestamp })),
+        ...todaySleeps.map(s => ({ ...s, entryType: 'sleep', sortTime: s.start_time }))
+      ].sort((a, b) => new Date(b.sortTime) - new Date(a.sortTime));
+
+      if (allEntries.length === 0) {
+        return (
+          <div className="card">
+            <div className="card-title">Today's Log</div>
+            <div className="empty-state">
+              <div className="empty-state-icon">📝</div>
+              <p>No entries yet today.<br/>Start tracking with the buttons above!</p>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="card">
+          <div className="card-title">Today's Log</div>
+          <div className="entry-list">
+            {allEntries.map(entry =>
+              entry.entryType === 'feed' ? (
+                <FeedEntry
+                  key={entry.id}
+                  feed={entry}
+                  onEdit={onEditFeed}
+                  onDelete={onDeleteFeed}
+                />
+              ) : (
+                <SleepEntry
+                  key={entry.id}
+                  sleep={entry}
+                  onEdit={onEditSleep}
+                  onDelete={onDeleteSleep}
+                />
+              )
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    const FeedModal = ({ feed, onSave, onClose }) => {
+      // Default to 30 min ago for new entries
+      const defaultTime = feed?.timestamp ? new Date(feed.timestamp) : getTime30MinAgo();
+
+      const [date, setDate] = useState(getLocalDateString(defaultTime));
+      const [time, setTime] = useState(getLocalTimeString(defaultTime));
+      const [amountOz, setAmountOz] = useState(feed?.amount_oz || '');
+      const [durationMinutes, setDurationMinutes] = useState(feed?.duration_minutes || '');
+
+      const handleSave = () => {
+        const newFeed = {
+          id: feed?.id || generateId(),
+          timestamp: combineDateTime(date, time),
+          amount_oz: amountOz ? parseFloat(amountOz) : null,
+          duration_minutes: durationMinutes ? parseInt(durationMinutes) : null
+        };
+        onSave(newFeed);
+      };
+
+      // Valid if at least one field is filled
+      const isValid = (amountOz && parseFloat(amountOz) > 0) || (durationMinutes && parseInt(durationMinutes) > 0);
+
+      return (
+        <div className="modal-overlay" onClick={onClose}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <div className="modal-title">{feed ? 'Edit Feed' : 'Log Feed'}</div>
+              <button className="modal-close" onClick={onClose}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="section-title">When</div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Date</label>
+                  <input
+                    type="date"
+                    className="form-input"
+                    value={date}
+                    onChange={e => setDate(e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Time</label>
+                  <input
+                    type="time"
+                    className="form-input"
+                    value={time}
+                    onChange={e => setTime(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="section-title">🍼 Bottle (formula or pumped)</div>
+              <div className="form-group">
+                <label className="form-label">Amount (oz)</label>
+                <input
+                  type="number"
+                  className="form-input"
+                  placeholder="e.g., 4"
+                  value={amountOz}
+                  onChange={e => setAmountOz(e.target.value)}
+                  min="0.5"
+                  step="0.5"
+                />
+              </div>
+
+              <div className="section-title">🤱 Nursing</div>
+              <div className="form-group">
+                <label className="form-label">Duration (minutes)</label>
+                <input
+                  type="number"
+                  className="form-input"
+                  placeholder="e.g., 15"
+                  value={durationMinutes}
+                  onChange={e => setDurationMinutes(e.target.value)}
+                  min="1"
+                />
+                <div className="helper-text">≈ {((parseInt(durationMinutes) || 0) * NURSING_OZ_PER_MINUTE).toFixed(1)} oz equivalent</div>
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button className="btn btn-outline" onClick={onClose}>Cancel</button>
+              <button
+                className="btn btn-primary"
+                onClick={handleSave}
+                disabled={!isValid}
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const SleepModal = ({ sleep, onSave, onClose }) => {
+      // Default to 30 min ago for new entries (retroactive logging)
+      const defaultStartTime = sleep?.start_time ? new Date(sleep.start_time) : getTime30MinAgo();
+      const defaultEndTime = sleep?.end_time ? new Date(sleep.end_time) : null;
+
+      const [startDate, setStartDate] = useState(getLocalDateString(defaultStartTime));
+      const [startTime, setStartTime] = useState(getLocalTimeString(defaultStartTime));
+      const [endDate, setEndDate] = useState(defaultEndTime ? getLocalDateString(defaultEndTime) : '');
+      const [endTime, setEndTime] = useState(defaultEndTime ? getLocalTimeString(defaultEndTime) : '');
+      const [location, setLocation] = useState(sleep?.location || '');
+
+      const handleSave = () => {
+        const newSleep = {
+          id: sleep?.id || generateId(),
+          start_time: combineDateTime(startDate, startTime),
+          end_time: (endDate && endTime) ? combineDateTime(endDate, endTime) : null,
+          location: location || null
+        };
+        onSave(newSleep);
+      };
+
+      return (
+        <div className="modal-overlay" onClick={onClose}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <div className="modal-title">{sleep ? 'Edit Sleep' : 'Log Sleep'}</div>
+              <button className="modal-close" onClick={onClose}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="section-title">Start Time</div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Date</label>
+                  <input
+                    type="date"
+                    className="form-input"
+                    value={startDate}
+                    onChange={e => setStartDate(e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Time</label>
+                  <input
+                    type="time"
+                    className="form-input"
+                    value={startTime}
+                    onChange={e => setStartTime(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="section-title">End Time (leave empty if still sleeping)</div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Date</label>
+                  <input
+                    type="date"
+                    className="form-input"
+                    value={endDate}
+                    onChange={e => setEndDate(e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Time</label>
+                  <input
+                    type="time"
+                    className="form-input"
+                    value={endTime}
+                    onChange={e => setEndTime(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Location (optional)</label>
+                <select
+                  className="form-select"
+                  value={location}
+                  onChange={e => setLocation(e.target.value)}
+                >
+                  <option value="">Select location...</option>
+                  <option value="crib">Crib</option>
+                  <option value="bassinet">Bassinet</option>
+                  <option value="stroller">Stroller</option>
+                  <option value="car seat">Car Seat</option>
+                  <option value="arms">Arms</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button className="btn btn-outline" onClick={onClose}>Cancel</button>
+              <button className="btn btn-primary" onClick={handleSave}>Save</button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // Main App Component
+    const App = () => {
+      const [data, setData] = useState(() => loadData());
+      const [feedModal, setFeedModal] = useState({ open: false, feed: null });
+      const [sleepModal, setSleepModal] = useState({ open: false, sleep: null });
+
+      // Save to localStorage whenever data changes
+      useEffect(() => {
+        saveData(data);
+      }, [data]);
+
+      // Feed handlers
+      const handleSaveFeed = (feed) => {
+        setData(prev => {
+          const exists = prev.feeds.find(f => f.id === feed.id);
+          if (exists) {
+            return {
+              ...prev,
+              feeds: prev.feeds.map(f => f.id === feed.id ? feed : f)
+            };
+          }
+          return {
+            ...prev,
+            feeds: [...prev.feeds, feed]
+          };
+        });
+        setFeedModal({ open: false, feed: null });
+      };
+
+      const handleDeleteFeed = (id) => {
+        if (confirm('Delete this feed entry?')) {
+          setData(prev => ({
+            ...prev,
+            feeds: prev.feeds.filter(f => f.id !== id)
+          }));
+        }
+      };
+
+      // Sleep handlers
+      const handleSaveSleep = (sleep) => {
+        setData(prev => {
+          const exists = prev.sleeps.find(s => s.id === sleep.id);
+          if (exists) {
+            return {
+              ...prev,
+              sleeps: prev.sleeps.map(s => s.id === sleep.id ? sleep : s)
+            };
+          }
+          return {
+            ...prev,
+            sleeps: [...prev.sleeps, sleep]
+          };
+        });
+        setSleepModal({ open: false, sleep: null });
+      };
+
+      const handleDeleteSleep = (id) => {
+        if (confirm('Delete this sleep entry?')) {
+          setData(prev => ({
+            ...prev,
+            sleeps: prev.sleeps.filter(s => s.id !== id)
+          }));
+        }
+      };
+
+      return (
+        <div className="container">
+          <Header />
+          <QuickActions
+            onLogNap={() => setSleepModal({ open: true, sleep: null })}
+            onLogFeed={() => setFeedModal({ open: true, feed: null })}
+          />
+          <TotalMilkCard feeds={data.feeds} />
+          <DailySummary feeds={data.feeds} sleeps={data.sleeps} />
+          <EntryList
+            feeds={data.feeds}
+            sleeps={data.sleeps}
+            onEditFeed={(feed) => setFeedModal({ open: true, feed })}
+            onDeleteFeed={handleDeleteFeed}
+            onEditSleep={(sleep) => setSleepModal({ open: true, sleep })}
+            onDeleteSleep={handleDeleteSleep}
+          />
+
+          {feedModal.open && (
+            <FeedModal
+              feed={feedModal.feed}
+              onSave={handleSaveFeed}
+              onClose={() => setFeedModal({ open: false, feed: null })}
+            />
+          )}
+
+          {sleepModal.open && (
+            <SleepModal
+              sleep={sleepModal.sleep}
+              onSave={handleSaveSleep}
+              onClose={() => setSleepModal({ open: false, sleep: null })}
+            />
+          )}
+        </div>
+      );
+    };
+
+    // Render the app
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
