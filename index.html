@@ -1183,7 +1183,10 @@
         try {
           // Send user's local date/time to avoid timezone issues
           const now = new Date();
-          const localDate = now.toISOString().split('T')[0];
+          const year = now.getFullYear();
+          const month = String(now.getMonth() + 1).padStart(2, '0');
+          const day = String(now.getDate()).padStart(2, '0');
+          const localDate = `${year}-${month}-${day}`;
           const localTime = now.toTimeString().split(' ')[0];
 
           const response = await fetch('/api/parse-entry', {
