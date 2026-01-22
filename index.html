@@ -1343,12 +1343,19 @@
           }
         });
 
+        alert('Adding ' + newFeeds.length + ' feeds. First: ' + JSON.stringify(newFeeds[0]));
+
         // Single state update with all entries
-        setData(prev => ({
-          ...prev,
-          feeds: [...prev.feeds, ...newFeeds],
-          sleeps: [...prev.sleeps, ...newSleeps]
-        }));
+        setData(prev => {
+          alert('prev.feeds.length=' + prev.feeds.length + ', adding ' + newFeeds.length);
+          const result = {
+            ...prev,
+            feeds: [...prev.feeds, ...newFeeds],
+            sleeps: [...prev.sleeps, ...newSleeps]
+          };
+          alert('result.feeds.length=' + result.feeds.length);
+          return result;
+        });
 
         // Celebrate once after all entries are added
         triggerCelebration();
