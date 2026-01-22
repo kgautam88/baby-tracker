@@ -1140,12 +1140,12 @@
           // Clear faces after animation
           const timer = setTimeout(() => {
             setFaces([]);
-            onComplete?.();
+            if (onComplete) onComplete();
           }, 3500);
 
           return () => clearTimeout(timer);
         }
-      }, [show, onComplete]);
+      }, [show]);
 
       if (faces.length === 0) return null;
 
