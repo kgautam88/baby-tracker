@@ -1325,6 +1325,7 @@
 
       // Handler for natural language parsed entries
       const handleParsedEntries = (entries) => {
+        alert('handleParsedEntries called with: ' + JSON.stringify(entries));
         if (!entries || entries.length === 0) return;
 
         entries.forEach(entry => {
