@@ -1325,31 +1325,31 @@
 
       // Handler for natural language parsed entries
       const handleParsedEntries = (entries) => {
-        setData(prev => {
-          const newFeeds = [...prev.feeds];
-          const newSleeps = [...prev.sleeps];
+        if (!entries || entries.length === 0) return;
 
-          entries.forEach(entry => {
-            if (entry.type === 'feed') {
-              newFeeds.push({
-                id: generateId(),
-                timestamp: entry.timestamp,
-                amount_oz: entry.amount_oz,
-                duration_minutes: entry.duration_minutes
-              });
-            } else if (entry.type === 'sleep') {
-              newSleeps.push({
-                id: generateId(),
-                start_time: entry.start_time,
-                end_time: entry.end_time,
-                location: entry.location
-              });
-            }
-          });
+        const newFeeds = [...data.feeds];
+        const newSleeps = [...data.sleeps];
 
-          return { feeds: newFeeds, sleeps: newSleeps };
+        entries.forEach(entry => {
+          if (entry.type === 'feed') {
+            newFeeds.push({
+              id: generateId(),
+              timestamp: entry.timestamp,
+              amount_oz: entry.amount_oz,
+              duration_minutes: entry.duration_minutes
+            });
+          } else if (entry.type === 'sleep') {
+            newSleeps.push({
+              id: generateId(),
+              start_time: entry.start_time,
+              end_time: entry.end_time,
+              location: entry.location
+            });
+          }
         });
-        if (entries.length > 0) triggerCelebration();
+
+        setData({ feeds: newFeeds, sleeps: newSleeps });
+        triggerCelebration();
       };
 
       return (
