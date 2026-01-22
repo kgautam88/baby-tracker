@@ -1324,33 +1324,37 @@
       };
 
       // Handler for natural language parsed entries
-      const handleParsedEntries = (entries) => {
+      const handleParsedEntries = useCallback((entries) => {
         if (!entries || entries.length === 0) return;
 
-        const newFeeds = [...data.feeds];
-        const newSleeps = [...data.sleeps];
+        setData(prevData => {
+          const newFeeds = [...prevData.feeds];
+          const newSleeps = [...prevData.sleeps];
 
-        entries.forEach(entry => {
-          if (entry.type === 'feed') {
-            newFeeds.push({
-              id: generateId(),
-              timestamp: entry.timestamp,
-              amount_oz: entry.amount_oz,
-              duration_minutes: entry.duration_minutes
-            });
-          } else if (entry.type === 'sleep') {
-            newSleeps.push({
-              id: generateId(),
-              start_time: entry.start_time,
-              end_time: entry.end_time,
-              location: entry.location
-            });
-          }
+          entries.forEach(entry => {
+            if (entry.type === 'feed') {
+              newFeeds.push({
+                id: generateId(),
+                timestamp: entry.timestamp,
+                amount_oz: entry.amount_oz,
+                duration_minutes: entry.duration_minutes
+              });
+            } else if (entry.type === 'sleep') {
+              newSleeps.push({
+                id: generateId(),
+                start_time: entry.start_time,
+                end_time: entry.end_time,
+                location: entry.location
+              });
+            }
+          });
+
+          return { feeds: newFeeds, sleeps: newSleeps };
         });
 
-        setData({ feeds: newFeeds, sleeps: newSleeps });
-        triggerCelebration();
-      };
+        // Trigger celebration after state update
+        setTimeout(() => triggerCelebration(), 0);
+      }, []);
 
       return (
         <div className="container">
