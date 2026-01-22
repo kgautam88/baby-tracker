@@ -1267,7 +1267,9 @@
 
       // Feed handlers
       const handleSaveFeed = (feed) => {
+        alert('handleSaveFeed called with: ' + JSON.stringify(feed));
         const isNew = !data.feeds.find(f => f.id === feed.id);
+        alert('isNew: ' + isNew);
         setData(prev => {
           const exists = prev.feeds.find(f => f.id === feed.id);
           if (exists) {
