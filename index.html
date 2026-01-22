@@ -667,7 +667,9 @@
     const isToday = (dateStr) => {
       const date = new Date(dateStr);
       const today = new Date();
-      return date.toDateString() === today.toDateString();
+      const result = date.toDateString() === today.toDateString();
+      console.log('isToday check:', dateStr, '→', date.toDateString(), 'vs', today.toDateString(), '=', result);
+      return result;
     };
 
     // Get date string (YYYY-MM-DD) for input
@@ -1269,19 +1271,16 @@
       const handleSaveFeed = (feed) => {
         alert('handleSaveFeed called with: ' + JSON.stringify(feed));
         const isNew = !data.feeds.find(f => f.id === feed.id);
-        alert('isNew: ' + isNew);
+        alert('isNew: ' + isNew + ', isToday: ' + (new Date(feed.timestamp).toDateString() === new Date().toDateString()));
         setData(prev => {
-          const exists = prev.feeds.find(f => f.id === feed.id);
-          if (exists) {
-            return {
-              ...prev,
-              feeds: prev.feeds.map(f => f.id === feed.id ? feed : f)
-            };
-          }
-          return {
+          const newData = {
             ...prev,
-            feeds: [...prev.feeds, feed]
+            feeds: prev.feeds.find(f => f.id === feed.id)
+              ? prev.feeds.map(f => f.id === feed.id ? feed : f)
+              : [...prev.feeds, feed]
           };
+          alert('New data.feeds length: ' + newData.feeds.length);
+          return newData;
         });
         setFeedModal({ open: false, feed: null });
         if (isNew) triggerCelebration();
