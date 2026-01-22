@@ -1269,21 +1269,29 @@
 
       // Feed handlers
       const handleSaveFeed = (feed) => {
-        alert('handleSaveFeed called with: ' + JSON.stringify(feed));
-        const isNew = !data.feeds.find(f => f.id === feed.id);
-        alert('isNew: ' + isNew + ', isToday: ' + (new Date(feed.timestamp).toDateString() === new Date().toDateString()));
-        setData(prev => {
-          const newData = {
-            ...prev,
-            feeds: prev.feeds.find(f => f.id === feed.id)
-              ? prev.feeds.map(f => f.id === feed.id ? feed : f)
-              : [...prev.feeds, feed]
-          };
-          alert('New data.feeds length: ' + newData.feeds.length);
-          return newData;
-        });
-        setFeedModal({ open: false, feed: null });
-        if (isNew) triggerCelebration();
+        try {
+          alert('1. handleSaveFeed called');
+          const isNew = !data.feeds.find(f => f.id === feed.id);
+          alert('2. isNew: ' + isNew);
+
+          setData(prev => {
+            try {
+              alert('3. Inside setData, prev.feeds.length: ' + prev.feeds.length);
+              const newFeeds = [...prev.feeds, feed];
+              alert('4. newFeeds.length: ' + newFeeds.length);
+              return { ...prev, feeds: newFeeds };
+            } catch (e) {
+              alert('Error in setData: ' + e.message);
+              return prev;
+            }
+          });
+
+          alert('5. After setData');
+          setFeedModal({ open: false, feed: null });
+          if (isNew) triggerCelebration();
+        } catch (e) {
+          alert('Error: ' + e.message);
+        }
       };
 
       const handleDeleteFeed = (id) => {
