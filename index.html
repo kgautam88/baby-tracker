@@ -667,9 +667,7 @@
     const isToday = (dateStr) => {
       const date = new Date(dateStr);
       const today = new Date();
-      const result = date.toDateString() === today.toDateString();
-      console.log('isToday check:', dateStr, '→', date.toDateString(), 'vs', today.toDateString(), '=', result);
-      return result;
+      return date.toDateString() === today.toDateString();
     };
 
     // Get date string (YYYY-MM-DD) for input
@@ -1268,30 +1266,17 @@
       }, [data]);
 
       // Feed handlers
-      const handleSaveFeed = (feed) => {
-        try {
-          alert('1. handleSaveFeed called');
-          const isNew = !data.feeds.find(f => f.id === feed.id);
-          alert('2. isNew: ' + isNew);
-
-          setData(prev => {
-            try {
-              alert('3. Inside setData, prev.feeds.length: ' + prev.feeds.length);
-              const newFeeds = [...prev.feeds, feed];
-              alert('4. newFeeds.length: ' + newFeeds.length);
-              return { ...prev, feeds: newFeeds };
-            } catch (e) {
-              alert('Error in setData: ' + e.message);
-              return prev;
-            }
-          });
-
-          alert('5. After setData');
-          setFeedModal({ open: false, feed: null });
-          if (isNew) triggerCelebration();
-        } catch (e) {
-          alert('Error: ' + e.message);
-        }
+      const handleSaveFeed = (feed, skipCelebration = false) => {
+        const isNew = !data.feeds.find(f => f.id === feed.id);
+        setData(prev => {
+          const exists = prev.feeds.find(f => f.id === feed.id);
+          if (exists) {
+            return { ...prev, feeds: prev.feeds.map(f => f.id === feed.id ? feed : f) };
+          }
+          return { ...prev, feeds: [...prev.feeds, feed] };
+        });
+        setFeedModal({ open: false, feed: null });
+        if (isNew && !skipCelebration) triggerCelebration();
       };
 
       const handleDeleteFeed = (id) => {
@@ -1336,27 +1321,37 @@
       const handleParsedEntries = (entries) => {
         if (!entries || entries.length === 0) return;
 
+        // Build all new entries first
+        const newFeeds = [];
+        const newSleeps = [];
+
         entries.forEach(entry => {
           if (entry.type === 'feed') {
-            // Use the same pattern as handleSaveFeed
-            const newFeed = {
+            newFeeds.push({
               id: generateId(),
               timestamp: entry.timestamp,
               amount_oz: entry.amount_oz,
               duration_minutes: entry.duration_minutes
-            };
-            handleSaveFeed(newFeed);
+            });
           } else if (entry.type === 'sleep') {
-            // Use the same pattern as handleSaveSleep
-            const newSleep = {
+            newSleeps.push({
               id: generateId(),
               start_time: entry.start_time,
               end_time: entry.end_time,
               location: entry.location
-            };
-            handleSaveSleep(newSleep);
+            });
           }
         });
+
+        // Single state update with all entries
+        setData(prev => ({
+          ...prev,
+          feeds: [...prev.feeds, ...newFeeds],
+          sleeps: [...prev.sleeps, ...newSleeps]
+        }));
+
+        // Celebrate once after all entries are added
+        triggerCelebration();
       };
 
       return (
