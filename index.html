@@ -572,6 +572,59 @@
       background: #FEE2E2;
       color: #991B1B;
     }
+
+    /* Celebration Animation */
+    .celebration-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1000;
+      overflow: hidden;
+    }
+
+    .floating-face {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-image: url('/api/face?size=120');
+      background-size: cover;
+      background-position: center;
+      animation: floatAround 3s ease-in-out forwards;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      border: 3px solid white;
+    }
+
+    @keyframes floatAround {
+      0% {
+        transform: translateY(100vh) rotate(0deg) scale(0.5);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+        transform: translateY(80vh) rotate(20deg) scale(1);
+      }
+      30% {
+        transform: translateY(50vh) rotate(-15deg) scale(1.1);
+      }
+      50% {
+        transform: translateY(30vh) rotate(25deg) scale(1);
+      }
+      70% {
+        transform: translateY(15vh) rotate(-20deg) scale(1.1);
+      }
+      90% {
+        opacity: 1;
+        transform: translateY(5vh) rotate(15deg) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-10vh) rotate(0deg) scale(0.8);
+      }
+    }
   </style>
 </head>
 <body>
@@ -1069,6 +1122,51 @@
       );
     };
 
+    // Celebration Component - floating faces animation
+    const Celebration = ({ show, onComplete }) => {
+      const [faces, setFaces] = useState([]);
+
+      useEffect(() => {
+        if (show) {
+          // Create multiple floating faces
+          const newFaces = Array.from({ length: 8 }, (_, i) => ({
+            id: Date.now() + i,
+            left: Math.random() * 80 + 10, // 10-90% from left
+            delay: Math.random() * 0.5, // 0-0.5s delay
+            size: 50 + Math.random() * 30, // 50-80px
+          }));
+          setFaces(newFaces);
+
+          // Clear faces after animation
+          const timer = setTimeout(() => {
+            setFaces([]);
+            onComplete?.();
+          }, 3500);
+
+          return () => clearTimeout(timer);
+        }
+      }, [show, onComplete]);
+
+      if (faces.length === 0) return null;
+
+      return (
+        <div className="celebration-container">
+          {faces.map(face => (
+            <div
+              key={face.id}
+              className="floating-face"
+              style={{
+                left: `${face.left}%`,
+                width: `${face.size}px`,
+                height: `${face.size}px`,
+                animationDelay: `${face.delay}s`,
+              }}
+            />
+          ))}
+        </div>
+      );
+    };
+
     // Quick Entry Component for natural language input
     const QuickEntry = ({ onEntriesAdded }) => {
       const [text, setText] = useState('');
@@ -1156,6 +1254,11 @@
       const [data, setData] = useState(() => loadData());
       const [feedModal, setFeedModal] = useState({ open: false, feed: null });
       const [sleepModal, setSleepModal] = useState({ open: false, sleep: null });
+      const [showCelebration, setShowCelebration] = useState(false);
+
+      const triggerCelebration = () => {
+        setShowCelebration(true);
+      };
 
       // Save to localStorage whenever data changes
       useEffect(() => {
@@ -1164,6 +1267,7 @@
 
       // Feed handlers
       const handleSaveFeed = (feed) => {
+        const isNew = !data.feeds.find(f => f.id === feed.id);
         setData(prev => {
           const exists = prev.feeds.find(f => f.id === feed.id);
           if (exists) {
@@ -1178,6 +1282,7 @@
           };
         });
         setFeedModal({ open: false, feed: null });
+        if (isNew) triggerCelebration();
       };
 
       const handleDeleteFeed = (id) => {
@@ -1191,6 +1296,7 @@
 
       // Sleep handlers
       const handleSaveSleep = (sleep) => {
+        const isNew = !data.sleeps.find(s => s.id === sleep.id);
         setData(prev => {
           const exists = prev.sleeps.find(s => s.id === sleep.id);
           if (exists) {
@@ -1205,6 +1311,7 @@
           };
         });
         setSleepModal({ open: false, sleep: null });
+        if (isNew) triggerCelebration();
       };
 
       const handleDeleteSleep = (id) => {
@@ -1242,6 +1349,7 @@
 
           return { feeds: newFeeds, sleeps: newSleeps };
         });
+        if (entries.length > 0) triggerCelebration();
       };
 
       return (
@@ -1278,6 +1386,11 @@
               onClose={() => setSleepModal({ open: false, sleep: null })}
             />
           )}
+
+          <Celebration
+            show={showCelebration}
+            onComplete={() => setShowCelebration(false)}
+          />
         </div>
       );
     };
