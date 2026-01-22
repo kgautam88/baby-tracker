@@ -1,4 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Background -->
   <rect width="512" height="512" rx="96" fill="#5B9BD5"/>
-  <text x="256" y="340" font-size="280" font-family="Arial, sans-serif" font-weight="bold" text-anchor="middle" fill="white">B</text>
+
+  <!-- Bottle body -->
+  <path d="M200 180 L200 140 C200 120 230 110 256 110 C282 110 312 120 312 140 L312 180"
+        fill="none" stroke="white" stroke-width="12" stroke-linecap="round"/>
+
+  <!-- Nipple -->
+  <ellipse cx="256" cy="105" rx="30" ry="20" fill="white" opacity="0.9"/>
+
+  <!-- Main bottle body -->
+  <rect x="180" y="175" width="152" height="240" rx="20" fill="white"/>
+
+  <!-- Milk fill -->
+  <rect x="190" y="260" width="132" height="145" rx="12" fill="#87CEEB" opacity="0.6"/>
+
+  <!-- Measurement lines -->
+  <line x1="190" y1="220" x2="220" y2="220" stroke="#5B9BD5" stroke-width="4" stroke-linecap="round"/>
+  <line x1="190" y1="260" x2="230" y2="260" stroke="#5B9BD5" stroke-width="4" stroke-linecap="round"/>
+  <line x1="190" y1="300" x2="220" y2="300" stroke="#5B9BD5" stroke-width="4" stroke-linecap="round"/>
+  <line x1="190" y1="340" x2="230" y2="340" stroke="#5B9BD5" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Bottle cap/ring -->
+  <rect x="190" y="170" width="132" height="25" rx="5" fill="#E8E8E8"/>
 </svg>
