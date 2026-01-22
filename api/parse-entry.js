@@ -4,7 +4,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { text } = req.body;
+  const { text, localDate, localTime } = req.body;
 
   if (!text || typeof text !== 'string') {
     return res.status(400).json({ error: 'Missing or invalid "text" field' });
@@ -15,8 +15,9 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'API key not configured' });
   }
 
-  const today = new Date().toISOString().split('T')[0];
-  const now = new Date().toISOString();
+  // Use client's local date/time if provided, otherwise fall back to server time
+  const today = localDate || new Date().toISOString().split('T')[0];
+  const now = localTime || new Date().toTimeString().split(' ')[0];
 
   const systemPrompt = `You parse baby tracking entries into JSON. TODAY'S DATE IS ${today}.
 

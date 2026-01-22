@@ -1181,12 +1181,21 @@
         setStatus(null);
 
         try {
+          // Send user's local date/time to avoid timezone issues
+          const now = new Date();
+          const localDate = now.toISOString().split('T')[0];
+          const localTime = now.toTimeString().split(' ')[0];
+
           const response = await fetch('/api/parse-entry', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ text: text.trim() })
+            body: JSON.stringify({
+              text: text.trim(),
+              localDate: localDate,
+              localTime: localTime
+            })
           });
 
           const data = await response.json();
@@ -1343,19 +1352,12 @@
           }
         });
 
-        alert('Adding ' + newFeeds.length + ' feeds. First: ' + JSON.stringify(newFeeds[0]));
-
         // Single state update with all entries
-        setData(prev => {
-          alert('prev.feeds.length=' + prev.feeds.length + ', adding ' + newFeeds.length);
-          const result = {
-            ...prev,
-            feeds: [...prev.feeds, ...newFeeds],
-            sleeps: [...prev.sleeps, ...newSleeps]
-          };
-          alert('result.feeds.length=' + result.feeds.length);
-          return result;
-        });
+        setData(prev => ({
+          ...prev,
+          feeds: [...prev.feeds, ...newFeeds],
+          sleeps: [...prev.sleeps, ...newSleeps]
+        }));
 
         // Celebrate once after all entries are added
         triggerCelebration();
