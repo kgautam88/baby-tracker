@@ -1196,7 +1196,6 @@
           }
 
           if (data.entries && data.entries.length > 0) {
-            alert('About to call onEntriesAdded with: ' + JSON.stringify(data.entries));
             onEntriesAdded(data.entries);
             setText('');
             const feedCount = data.entries.filter(e => e.type === 'feed').length;
@@ -1326,36 +1325,29 @@
 
       // Handler for natural language parsed entries
       const handleParsedEntries = (entries) => {
-        alert('handleParsedEntries called with: ' + JSON.stringify(entries));
         if (!entries || entries.length === 0) return;
 
         entries.forEach(entry => {
           if (entry.type === 'feed') {
+            // Use the same pattern as handleSaveFeed
             const newFeed = {
               id: generateId(),
               timestamp: entry.timestamp,
               amount_oz: entry.amount_oz,
               duration_minutes: entry.duration_minutes
             };
-            setData(prev => ({
-              ...prev,
-              feeds: [...prev.feeds, newFeed]
-            }));
+            handleSaveFeed(newFeed);
           } else if (entry.type === 'sleep') {
+            // Use the same pattern as handleSaveSleep
             const newSleep = {
               id: generateId(),
               start_time: entry.start_time,
               end_time: entry.end_time,
               location: entry.location
             };
-            setData(prev => ({
-              ...prev,
-              sleeps: [...prev.sleeps, newSleep]
-            }));
+            handleSaveSleep(newSleep);
           }
         });
-
-        triggerCelebration();
       };
 
       return (
