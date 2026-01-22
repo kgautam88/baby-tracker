@@ -1196,6 +1196,7 @@
           }
 
           if (data.entries && data.entries.length > 0) {
+            alert('About to call onEntriesAdded with: ' + JSON.stringify(data.entries));
             onEntriesAdded(data.entries);
             setText('');
             const feedCount = data.entries.filter(e => e.type === 'feed').length;
